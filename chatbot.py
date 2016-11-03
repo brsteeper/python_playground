@@ -22,30 +22,32 @@ sassy_responses = ["Are you kidding me?", "Would you like me to call your friend
 
 sensible_responses = {"directions": "you're doing fine, go straight", "weather": "Looks pretty bad out there!", "food": "I can order you some pizza"}
 
-regex_responses = {"I want (?P<number>.+) scoops of (?P<flavor>.+) ice cream": "flavor ice cream, number scoops, that'll be 37 dollars", "I want directions to (?P<city>.+), (?P<state>.+)": "Oh, I wouldn't go to state. But if you must, beware of the girls in city."}
+regex_responses = { "I would like you to (?P<verb>.+) my friend (?P<name>.+)": "Sure, I'll verb name right now!",
+ "Who is (?P<first_name>.+) von (?P<second_name>.+)\?": "I don't know who first_name is, but I'm sure he is from second_name.",
+ "I want (?P<number>.+) scoops of (?P<flavor>.+) ice cream": "flavor ice cream, number scoops, that'll be 37 dollars",
+ "I want directions to (?P<city>.+), (?P<state>.+)": "Oh, I wouldn't go to state. But if you must, beware of the girls in city."}
+
 
 def extract_words(exp,sentence):
     result = re.match(exp, sentence)
     if result:
-        return result.group(1, 2)
+        return result.groupdict()
 
 
 def responder(user_sentence):
     #match user_sentence against expression
     #if it matches return response with extracted words
     for expression in regex_responses:
-        pattern_words = extract_words (expression, user_sentence)
-        if pattern_words:
+        extracted_dict = extract_words (expression, user_sentence)
+        if extracted_dict:
+            extracted_keys = extracted_dict.keys()
             response = regex_responses[expression]
-            if "flavor" in response:
-                response = response.replace("flavor", pattern_words[1])
-                response = response.replace("number", pattern_words[0])
-            else:
-                response = response.replace("city", pattern_words[0])
-                response = response.replace("state", pattern_words[1])
+            for key in extracted_dict:
+                response = response.replace(key, extracted_dict[key])
             return response
 
-    
+
+
     # if keyword in user_sentence:
     #return sensible_responses[keyword]
     for keyword in sensible_responses:
